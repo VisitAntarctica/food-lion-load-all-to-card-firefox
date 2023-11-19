@@ -8,29 +8,37 @@ async function runSelect(event) {
   event.preventDefault();
 
   // Scroll to the bottom a few times to try to get all coupons to show up.
-  for (let i = 0; i < 5; ++i) {
+  /*for (let i = 0; i < 5; ++i) {
     window.scrollTo(0, document.body.scrollHeight);
     await sleep(1000);
-  }
+  }*/
+  // Click the "Show more" button until it doesn't come up anymore
 
+  var showMoreBtn = document.getElementById('show-more');
+  while (showMoreBtn !== null) {
+    showMoreBtn.click();
+    await sleep( Math.random() * 1000 + 3000 );
+    showMoreBtn = document.getElementById('show-more');
+  }
   // Click on every "load to card" button.
-  var load2crd = document.getElementsByClassName('fl-coupon-load');
+  var load2crd = document.querySelectorAll('.item-tile_button-container > button');
   console.log(load2crd.length + ' coupons found');
   var clicked = 0;
-
   // Iterate in reverse because clicking on a button mutates the coupon list.
   for (var btn of Array.from(load2crd).reverse()) {
-    btn.scrollIntoView();
-    btn.click();
-    clicked++;
-    await sleep(1000);
+    if( btn.disabled == false ){
+      btn.scrollIntoView();
+      btn.click();
+      clicked++;
+    }
+    await sleep(Math.random() * 500 + 500);
   }
   console.log(clicked + ' coupons clicked');
 }
 
 function insertButton(btn) {
   function waitForSite() {
-    var targetelem = document.getElementById('site-content-wrap');
+    var targetelem = document.getElementById('shared');
     if (targetelem !== null) {
       clearInterval(waitForSiteTimer);
       targetelem.insertBefore(btn, targetelem.childNodes[0]);

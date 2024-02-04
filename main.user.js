@@ -1,0 +1,89 @@
+// ==UserScript==
+// @name      Food Lion add all coupons - Firefox userscript version
+// @include /^https://.*\.?foodlion?\.com/savings/coupons\.*/
+// @version  1.00
+// @grant    none
+// @noframes
+// @description Food lion add all coupons button
+// ==/UserScript==
+// jshint esversion: 8
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function runSelect(event) {
+  event.preventDefault();
+
+  // Scroll to the bottom a few times to try to get all coupons to show up.
+  /*for (let i = 0; i < 5; ++i) {
+    window.scrollTo(0, document.body.scrollHeight);
+    await sleep(1000);
+  }*/
+  // Click the "Show more" button until it doesn't come up anymore
+
+  var showMoreBtn = document.getElementById('show-more');
+  while (showMoreBtn !== null) {
+    showMoreBtn.click();
+    await sleep( Math.random() * 1000 + 3000 );
+    showMoreBtn = document.getElementById('show-more');
+  }
+  // Click on every "load to card" button.
+  var load2crd = document.querySelectorAll('.item-tile_button-container > button');
+  console.log(load2crd.length + ' coupons found');
+  var clicked = 0;
+  // Iterate in reverse because clicking on a button mutates the coupon list.
+  for (var btn of Array.from(load2crd).reverse()) {
+    if( btn.disabled == false ){
+      btn.scrollIntoView();
+      btn.click();
+      clicked++;
+    }
+    await sleep(Math.random() * 500 + 500);
+  }
+  console.log(clicked + ' coupons clicked');
+}
+
+function insertButton(btn) {
+  function waitForSite() {
+    var targetelem = document.getElementById('shared');
+    if (targetelem !== null) {
+      clearInterval(waitForSiteTimer);
+      targetelem.insertBefore(btn, targetelem.childNodes[0]);
+    }
+  }
+
+  // Wait for site to finish loading before inserting button.
+  var waitForSiteTimer = setInterval(waitForSite, 100);
+}
+
+function init() {
+  // Make a new button for our action.
+  var newbutton = document.createElement('button');
+  newbutton.name = 'load_all_to_card';
+  newbutton.id = 'load_all_to_card';
+  newbutton.style.cssText = 'background-color: #fff; color: #E82A24; font-weight: 700; border: solid #E82A24; padding: 6px 10px; cursor: pointer; margin: 5px';
+
+  newbutton.addEventListener('mouseenter',
+    () => {
+      newbutton.style.color = '#fff';
+      newbutton.style.backgroundColor = '#E82A24';
+    }
+  );
+
+  newbutton.addEventListener('mouseleave',
+    () => {
+      newbutton.style.color = '#E82A24';
+      newbutton.style.backgroundColor = '#fff';
+    }
+  );
+
+  newbutton.appendChild(document.createTextNode('Load All To Card'));
+  newbutton.addEventListener('click', runSelect);
+
+  insertButton(newbutton);
+}
+
+init();
+
+// -- The End --

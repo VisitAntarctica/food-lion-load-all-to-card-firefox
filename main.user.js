@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name      Food Lion add all coupons - Firefox userscript version
 // @include /^https://.*\.?foodlion?\.com/savings/coupons\.*/
-// @version  1.00
+// @version  1.01
 // @grant    none
 // @noframes
 // @description Food lion add all coupons button
@@ -29,7 +29,7 @@ async function runSelect(event) {
     showMoreBtn = document.getElementById('show-more');
   }
   // Click on every "load to card" button.
-  var load2crd = document.querySelectorAll('.item-tile_button-container > button');
+  var load2crd = document.querySelectorAll('.item-tile_container button.item-details_color');
   console.log(load2crd.length + ' coupons found');
   var clicked = 0;
   // Iterate in reverse because clicking on a button mutates the coupon list.

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name      Food Lion add all coupons - Firefox userscript version
-// @include /^https://.*\.?foodlion?\.com/savings/coupons\.*/
-// @version  1.02
+// @include /^https://.*\.?foodlion?\.com/savings/coupons.*/
+// @version  1.03
 // @grant    none
 // @noframes
 // @description Food lion add all coupons button

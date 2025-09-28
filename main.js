@@ -1,3 +1,11 @@
+// ==UserScript==
+// @name      Food Lion add all coupons - Firefox userscript version
+// @include /^https://.*\.?foodlion?\.com/savings/coupons.*/
+// @version  1.06
+// @grant    none
+// @noframes
+// @description Food lion add all coupons button
+// ==/UserScript==
 // jshint esversion: 8
 
 function sleep(ms) {
@@ -25,7 +33,7 @@ async function runSelect(event) {
     let btn = btns[0];
     btn.scrollIntoView({ block: 'center' });
     btn.click();
-    await sleep(1000);
+    await sleep(Math.random() * 1000 + (Math.random() * 3000));
   }
 
   // Click on "Clip Coupon" buttons.
@@ -37,7 +45,7 @@ async function runSelect(event) {
     btn.scrollIntoView({ block: 'center' });
     btn.click();
     clicked++;
-    await sleep(1000);
+    await sleep(Math.random() * 1000 + (Math.random() * 3000));
   }
 
   console.log(clicked + ' coupons clicked');

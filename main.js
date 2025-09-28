@@ -46,6 +46,7 @@ async function runSelect(event) {
     btn.click();
     clicked++;
     await sleep(Math.random() * 1000 + (Math.random() * 3000));
+
   }
 
   console.log(clicked + ' coupons clicked');
@@ -54,6 +55,7 @@ async function runSelect(event) {
 function insertButton(btn) {
   function waitForSite() {
     let targetelem = document.getElementById('app');
+
     if (targetelem !== null) {
       clearInterval(waitForSiteTimer);
       targetelem.insertBefore(btn, targetelem.childNodes[0]);

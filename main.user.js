@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name      Food Lion add all coupons - Firefox userscript version
 // @include /^https://.*\.?foodlion?\.com/savings/coupons.*/
-// @version  1.03
+// @version  1.06
 // @grant    none
 // @noframes
 // @description Food lion add all coupons button
@@ -12,41 +12,50 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function findButtons(str) {
+  let btns = [];
+  for (let btn of document.querySelectorAll('button')) {
+    if (btn.textContent.includes(str)) {
+      btns.push(btn);
+    }
+  }
+  return btns;
+}
+
 async function runSelect(event) {
   event.preventDefault();
 
-  // Scroll to the bottom a few times to try to get all coupons to show up.
-  /*for (let i = 0; i < 5; ++i) {
-    window.scrollTo(0, document.body.scrollHeight);
-    await sleep(1000);
-  }*/
-  // Click the "Show more" button until it doesn't come up anymore
+  // Click on "Show More" button until it no longer shows up.
+  // Limit the number of times we click on that button.
+  for (let i = 0; i < 10; ++i) {
+    let btns = findButtons('Show More');
+    if (!btns.length) break;
+    let btn = btns[0];
+    btn.scrollIntoView({ block: 'center' });
+    btn.click();
+    await sleep(Math.random() * 1000 + (Math.random() * 3000));
+  }
 
-  var showMoreBtn = document.getElementById('show-more');
-  while (showMoreBtn !== null) {
-    showMoreBtn.click();
-    await sleep( Math.random() * 1000 + 3000 );
-    showMoreBtn = document.getElementById('show-more');
+  // Click on "Clip Coupon" buttons.
+  let btns = findButtons('Clip Coupon');
+  console.log(btns.length + ' coupons found');
+
+  let clicked = 0;
+  for (let btn of Array.from(btns).reverse()) {
+    btn.scrollIntoView({ block: 'center' });
+    btn.click();
+    clicked++;
+    await sleep(Math.random() * 1000 + (Math.random() * 3000));
+
   }
-  // Click on every "load to card" button.
-  var load2crd = document.querySelectorAll('.mx-auto button.item-details_color');
-  console.log(load2crd.length + ' coupons found');
-  var clicked = 0;
-  // Iterate in reverse because clicking on a button mutates the coupon list.
-  for (var btn of Array.from(load2crd).reverse()) {
-    if( btn.disabled == false ){
-      btn.scrollIntoView();
-      btn.click();
-      clicked++;
-    }
-    await sleep(Math.random() * 500 + 500);
-  }
+
   console.log(clicked + ' coupons clicked');
 }
 
 function insertButton(btn) {
   function waitForSite() {
-    var targetelem = document.getElementById('shared');
+    let targetelem = document.getElementById('app');
+
     if (targetelem !== null) {
       clearInterval(waitForSiteTimer);
       targetelem.insertBefore(btn, targetelem.childNodes[0]);
@@ -54,12 +63,21 @@ function insertButton(btn) {
   }
 
   // Wait for site to finish loading before inserting button.
-  var waitForSiteTimer = setInterval(waitForSite, 100);
+  let waitForSiteTimer = setInterval(waitForSite, 100);
 }
 
-function init() {
+function run() {
+  // Check if we are on the coupons page.
+  let loc = window.location.href;
+  if (!loc.includes('/savings/coupons/browse')) {
+    // Remove button if it is on a non-coupon page.
+    let btn = document.getElementById('load_all_to_card');
+    if (btn) btn.remove();
+    return;
+  }
+
   // Make a new button for our action.
-  var newbutton = document.createElement('button');
+  let newbutton = document.createElement('button');
   newbutton.name = 'load_all_to_card';
   newbutton.id = 'load_all_to_card';
   newbutton.style.cssText = 'background-color: #fff; color: #E82A24; font-weight: 700; border: solid #E82A24; padding: 6px 10px; cursor: pointer; margin: 5px';
@@ -81,9 +99,25 @@ function init() {
   newbutton.appendChild(document.createTextNode('Load All To Card'));
   newbutton.addEventListener('click', runSelect);
 
-  insertButton(newbutton);
+  // Don't add button if already there.
+  if (!document.getElementById('load_all_to_card')) insertButton(newbutton);
 }
 
-init();
+// Run the button inserter the first time and also whenever the URL changes.
+// Some links in the new Food Lion web interface do not reload the page.
+const observeUrlChange = () => {
+  let oldHref = null;
+  const body = document.querySelector('body');
+  const observer = new MutationObserver(mutations => {
+    if (oldHref !== document.location.href) {
+      oldHref = document.location.href;
+      run();
+    }
+  });
+  observer.observe(body, { childList: true, subtree: true });
+};
+
+// window.onload = observeUrlChange;
+observeUrlChange();
 
 // -- The End --
